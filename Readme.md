@@ -1,5 +1,5 @@
 <div align="center">
-<img src="images/logo.png" alt="Zs Cyber Protection Guard Logo" width="250">
+<img src="logo.png" alt="Zs Cyber Protection Guard Logo" width="250">
 <br>
 <h1>Zs Cyber Protection Guard</h1>
 <p><em>Continuous Cyber Attack Protection</em></p>
