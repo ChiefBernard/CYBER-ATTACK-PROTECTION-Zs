@@ -1,0 +1,16 @@
+# Ignore PowerShell session/module files
+*.ps1xml
+*.psm1
+*.pssc
+
+# Ignore log files and system artifacts
+*.log
+Thumbs.db
+
+# Ignore any backup or temporary files
+*.bak
+*.tmp
+
+# Ignore personal IDE settings
+.vscode/
+.idea/

@@ -1,24 +1,62 @@
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)
+# 🔄 Continuous DNS Security Rotator
+
+A robust PowerShell script that continuously rotates DNS servers between Cloudflare (1.1.1.1) and Quad9 (9.9.9.9) to enhance privacy and provide basic security hardening.
+
+![PowerShell Version](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
-# DNS Security Rotation Script
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-A PowerShell script that provides continuous DNS rotation between Cloudflare and Quad9 DNS servers for enhanced privacy and basic security hardening.
+## ✨ Features
 
-## Features
-- Rotates DNS every 5 seconds in a 3-cycle pattern
-- Enables Windows Firewall
-- Disables high-risk services
-- Clean shutdown with Ctrl+C
-- Performance monitoring
+- **Continuous DNS Rotation**: Automatically switches between Cloudflare and Quad9 DNS every 5 seconds
+- **Security Hardening**: Enables Windows Firewall and disables high-risk services
+- **Clean Operation**: Graceful shutdown with Ctrl+C that restores original DNS settings
+- **Visual Feedback**: Real-time console display with rotation statistics
+- **Persistent State**: Maintains rotation cycle across restarts
 
-## Usage
-1. Run PowerShell as Administrator
-2. Execute: `.\ContinuousDNSGuard.ps1`
-3. Press Ctrl+C to stop
+## 🚀 Quick Start
 
-## Requirements
-- Windows 10/11 with PowerShell 5.1+
-- Administrator privileges
+### Prerequisites
+- Windows 10/11
+- PowerShell 5.1 or higher
+- **Administrator privileges**
 
-## Disclaimer
-This script is for educational purposes. Use at your own risk.
+### Installation
+```powershell
+# Clone the repository
+git clone https://github.com/YOUR-USERNAME/DNS-Security-Rotation.git
+cd DNS-Security-Rotation
+
+# Run the script (as Administrator)
+.\ContinuousDNSGuard.ps1
+```
+
+## 📋 Usage
+
+```powershell
+# Start the DNS rotation service
+.\ContinuousDNSGuard.ps1
+
+# Press Ctrl+C to stop and restore original DNS settings
+```
+
+**Expected Output:**
+```
+[14:30:25] ✓ ☁️ Cloudflare   State: CF1 Rotations: 1 (12.00/min)
+[14:30:30] ✓ 🛡️ Quad9        State: Q9  Rotations: 2 (24.00/min)
+```
+
+## ⚙️ Configuration
+
+Edit the script to modify:
+- Rotation interval (`$RotationDelay`)
+- DNS servers (`$CloudflareDNS`, `$Quad9DNS`)
+- Services to disable (in `Initialize-SecurityBaseline`)
+
+## ⚠️ Disclaimer
+
+This tool is for **educational and privacy-enhancement purposes** only. Use at your own risk. The authors are not responsible for any network disruptions or security issues caused by this software.
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
