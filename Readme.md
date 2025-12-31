@@ -1,10 +1,25 @@
+<div align="center">
+<img src="images/logo.png" alt="Zs Cyber Protection Guard Logo" width="250">
+<br>
+<h1>Zs Cyber Protection Guard</h1>
+<p><em>Continuous Cyber Attack Protection</em></p>
+</div>
+
+<div align="center">
+
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg?logo=powershell)]()
+[![License](https://img.shields.io/badge/License-MIT-green.svg)]()
+[![GitHub](https://img.shields.io/badge/GitHub-ChiefBernard-lightgrey)](https://github.com/ChiefBernard)
+
+</div>
+
 # 🔄 Continuous DNS Security Rotator
 
-A robust PowerShell script that continuously rotates DNS servers between Cloudflare (1.1.1.1) and Quad9 (9.9.9.9) to enhance privacy and provide basic security hardening.
+A robust PowerShell script that continuously rotates DNS servers between Cloudflare (1.1.1.1) and Quad9 (9.9.9.9) to enhance privacy and provide basic security hardening
 
-![PowerShell Version](https://img.shields.io/badge/PowerShell-5.1+-blue.svg)
-![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+# AUTHOR/CREATOR
+UGOCHUKWU BERNARD ANYAOGU-BEN; Chief Bernard Links Ltd
+
 
 ## ✨ Features
 
@@ -24,18 +39,18 @@ A robust PowerShell script that continuously rotates DNS servers between Cloudfl
 ### Installation
 ```powershell
 # Clone the repository
-git clone https://github.com/YOUR-USERNAME/DNS-Security-Rotation.git
-cd DNS-Security-Rotation
+git clone https://github.com/ChiefBernard/CYBER-ATTACK-PROTECTION-Zs
+cd CYBER-ATTACK-PROTECTION-Zs
 
 # Run the script (as Administrator)
-.\ContinuousDNSGuard.ps1
+.\CYBER-ATTACK-GUARD-Zs.psi
 ```
 
 ## 📋 Usage
 
 ```powershell
 # Start the DNS rotation service
-.\ContinuousDNSGuard.ps1
+.\CYBER-ATTACK-GUARD-Zs.psi
 
 # Press Ctrl+C to stop and restore original DNS settings
 ```
