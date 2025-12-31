@@ -1,0 +1,6 @@
+# Support DNS Security Rotation development
+# Every contribution helps improve and maintain this tool
+github: [ChiefBernard]  # Replace with your actual username
+custom:
+  - 'https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005'  # Test mode link
+  # - 'https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005'  # Live mode (uncomment when ready

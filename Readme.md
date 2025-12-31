@@ -60,3 +60,15 @@ This tool is for **educational and privacy-enhancement purposes** only. Use at y
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+## ☕ Support This Project
+
+If this tool helps protect your privacy and you'd like to support its development:
+
+[![Stripe](https://img.shields.io/badge/Donate-Stripe-635bff)](https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-%23EA4AAA)](https://github.com/sponsors/ChiefBernard)
+
+Your support helps cover:
+- Server costs for testing
+- Development time for new features
+- Security audits and updates
