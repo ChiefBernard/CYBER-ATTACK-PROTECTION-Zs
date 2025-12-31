@@ -1,3 +1,5 @@
+<!-- Social Media Preview -->
+<meta property="og:image" content="https://raw.githubusercontent.com/ChiefBernard/CYBER-ATTACK-PROTECTION-Zs/main/social-preview.png">
 <div align="center">
 <img src="logo.png" alt="Zs Cyber Protection Guard Logo" width="250">
 <br>
