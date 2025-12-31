@@ -1,0 +1,237 @@
+<#
+.SYNOPSIS
+    Continuous DNS rotation service with 5-second intervals
+.DESCRIPTION
+    Runs in an infinite loop, rotating DNS every 5 seconds in a 3-cycle pattern
+    while maintaining essential security configurations.
+    Press Ctrl+C to stop the process.
+.NOTES
+    Author: Security Automation Service
+    IMPORTANT: Run as Administrator. This script runs indefinitely.
+#>
+
+#Requires -RunAsAdministrator
+
+# Configuration
+$CloudflareDNS = @("1.1.1.1", "1.0.0.1")
+$Quad9DNS = @("9.9.9.9", "149.112.112.112")
+$RotationDelay = 5  # Seconds between rotations
+$CycleLength = 6    # 3 forward, 3 back = 6 total states
+
+# Performance counters for monitoring
+$script:TotalRotations = 0
+$script:StartTime = Get-Date
+$script:LastErrorTime = $null
+$script:RotationStates = @("CF1", "Q9", "CF2", "Q9", "CF3", "Q9")  # Visualization states
+
+function Initialize-SecurityBaseline {
+    Write-Host "`n=== Initializing Security Baseline ===" -ForegroundColor Cyan -BackgroundColor DarkGray
+    
+    # Enable Windows Firewall (one-time setup)
+    try {
+        Set-NetFirewallProfile -Profile Domain, Public, Private -Enabled True -ErrorAction Stop
+        Write-Host "✓ Windows Firewall enabled for all profiles" -ForegroundColor Green
+    } catch {
+        Write-Host "✗ Failed to configure firewall: $_" -ForegroundColor Red
+    }
+    
+    # Disable high-risk services (one-time)
+    $HighRiskServices = @{
+        "RemoteRegistry" = "Remote registry access"
+        "Telnet" = "Unencrypted remote login"
+        "W3SVC" = "IIS web server (if not needed)"
+    }
+    
+    foreach ($service in $HighRiskServices.Keys) {
+        try {
+            Stop-Service -Name $service -Force -ErrorAction SilentlyContinue
+            Set-Service -Name $service -StartupType Disabled -ErrorAction SilentlyContinue
+            Write-Host "✓ Disabled: $service - $($HighRiskServices[$service])" -ForegroundColor Green
+        } catch {
+            Write-Host "  Note: Service '$service' not available or already disabled" -ForegroundColor Yellow
+        }
+    }
+    
+    # Set execution policy
+    Set-ExecutionPolicy RemoteSigned -Scope LocalMachine -Force -ErrorAction SilentlyContinue
+    Write-Host "✓ PowerShell execution policy set" -ForegroundColor Green
+}
+
+function Get-NetworkInterfaces {
+    # Cache network interfaces to reduce overhead
+    $cachedInterfaces = $null
+    $lastInterfaceCheck = $null
+    
+    return {
+        # Refresh interface list every 10 rotations to handle new connections
+        if (-not $cachedInterfaces -or 
+            (Get-Date) -gt $lastInterfaceCheck.AddMinutes(5) -or 
+            $script:TotalRotations % 10 -eq 0) {
+            
+            $cachedInterfaces = Get-NetAdapter | Where-Object { 
+                $_.Status -eq 'Up' -and 
+                ($_.InterfaceDescription -like "*Ethernet*" -or 
+                 $_.InterfaceDescription -like "*Wi-Fi*" -or 
+                 $_.InterfaceDescription -like "*WLAN*") 
+            }
+            $lastInterfaceCheck = Get-Date
+        }
+        
+        return $cachedInterfaces
+    }.Invoke()
+}
+
+function Rotate-DNSContinuous {
+    param([int]$CyclePosition)
+    
+    $interfaces = Get-NetworkInterfaces
+    
+    if (-not $interfaces) {
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] No active interfaces found. Retrying..." -ForegroundColor Yellow
+        return
+    }
+    
+    # Determine DNS based on cycle position
+    $newDNS = if ($CyclePosition % 2 -eq 0) { 
+        @{DNS = $CloudflareDNS; Provider = "Cloudflare"; Symbol = "☁️"}
+    } else { 
+        @{DNS = $Quad9DNS; Provider = "Quad9"; Symbol = "🛡️"}
+    }
+    
+    # Apply to all interfaces
+    foreach ($interface in $interfaces) {
+        try {
+            Set-DnsClientServerAddress -InterfaceAlias $interface.Name `
+                -ServerAddresses $newDNS.DNS `
+                -ErrorAction Stop
+            
+            # Success marker
+            $successMark = "✓"
+        } catch {
+            $successMark = "✗"
+            $script:LastErrorTime = Get-Date
+        }
+    }
+    
+    # Display status with minimal overhead
+    $timeElapsed = [math]::Round(((Get-Date) - $script:StartTime).TotalMinutes, 1)
+    
+    # FIXED: Proper if statement syntax for rate calculation
+    if ($timeElapsed -gt 0) {
+        $rate = [math]::Round($script:TotalRotations / $timeElapsed, 2)
+    } else {
+        $rate = 0
+    }
+    
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] " -NoNewline -ForegroundColor Gray
+    Write-Host "$successMark " -NoNewline -ForegroundColor $(if ($successMark -eq "✓") { "Green" } else { "Red" })
+    Write-Host "$($newDNS.Symbol) " -NoNewline
+    Write-Host "$($newDNS.Provider.PadRight(10)) " -NoNewline -ForegroundColor Cyan
+    Write-Host "State: $($script:RotationStates[$CyclePosition]) " -NoNewline -ForegroundColor Yellow
+    Write-Host "Rotations: $($script:TotalRotations) " -NoNewline -ForegroundColor Magenta
+    Write-Host "($rate/min)" -ForegroundColor DarkGray
+    
+    $script:TotalRotations++
+}
+
+function Show-Header {
+    Clear-Host
+    Write-Host "`n" -NoNewline
+    Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+    Write-Host "║           CONTINUOUS DNS ROTATION SERVICE v2.0              ║" -ForegroundColor Cyan
+    Write-Host "╠══════════════════════════════════════════════════════════════╣" -ForegroundColor Cyan
+    Write-Host "║ Pattern: CF → Q9 → CF → Q9 → CF → Q9 → (repeat)              ║" -ForegroundColor White
+    Write-Host "║ Interval: 5 seconds                                          ║" -ForegroundColor White
+    Write-Host "║ DNS Servers: Cloudflare (1.1.1.1) | Quad9 (9.9.9.9)         ║" -ForegroundColor White
+    Write-Host "║                                                              ║" -ForegroundColor Cyan
+    Write-Host "║ Press " -NoNewline -ForegroundColor White
+    Write-Host "Ctrl+C" -NoNewline -ForegroundColor Red -BackgroundColor DarkGray
+    Write-Host " to stop the service                              ║" -ForegroundColor White
+    Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "`n"
+    
+    Write-Host "Starting in 3..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host " 2..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host " 1..." -ForegroundColor Yellow -NoNewline
+    Start-Sleep -Seconds 1
+    Write-Host "`n`n"
+}
+
+function Show-ShutdownMessage {
+    Write-Host "`n`n"
+    Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Red
+    Write-Host "║                   SERVICE SHUTDOWN                           ║" -ForegroundColor Red
+    Write-Host "╠══════════════════════════════════════════════════════════════╣" -ForegroundColor Red
+    Write-Host "║ Service stopped by user                                      ║" -ForegroundColor White
+    $runtime = [math]::Round(((Get-Date) - $script:StartTime).TotalMinutes, 1)
+    Write-Host "║ Total runtime: ${runtime} minutes" -ForegroundColor White
+    Write-Host "║ Total rotations: $($script:TotalRotations)" -ForegroundColor White
+    
+    # FIXED: Proper if statement for shutdown rate calculation
+    if ($runtime -gt 0) {
+        $avgRate = [math]::Round($script:TotalRotations / $runtime, 2)
+    } else {
+        $avgRate = 0
+    }
+    
+    Write-Host "║ Average rate: ${avgRate} rotations/minute" -ForegroundColor White
+    Write-Host "║                                                              ║" -ForegroundColor Red
+    Write-Host "║ Restoring DHCP DNS settings...                               ║" -ForegroundColor White
+    Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Red
+    
+    # Restore automatic DNS on all interfaces
+    $interfaces = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
+    foreach ($interface in $interfaces) {
+        Set-DnsClientServerAddress -InterfaceAlias $interface.Name -ResetServerAddresses
+        Write-Host "  Restored automatic DNS on: $($interface.Name)" -ForegroundColor Green
+    }
+    
+    Write-Host "`nService shutdown complete. Goodbye!" -ForegroundColor Green
+}
+
+# --- Main Execution Loop ---
+try {
+    # Setup console for clean shutdown
+    [Console]::TreatControlCAsInput = $false
+    
+    Show-Header
+    Initialize-SecurityBaseline
+    
+    Write-Host "`n" + ("─" * 70) -ForegroundColor DarkGray
+    Write-Host "BEGINNING CONTINUOUS ROTATION CYCLE" -ForegroundColor Green -BackgroundColor DarkBlue
+    Write-Host ("─" * 70) + "`n" -ForegroundColor DarkGray
+    
+    $cyclePosition = 0
+    
+    # Main infinite loop
+    while ($true) {
+        Rotate-DNSContinuous -CyclePosition $cyclePosition
+        
+        # Update cycle position
+        $cyclePosition = ($cyclePosition + 1) % $CycleLength
+        
+        # Efficient delay using .NET Timer instead of Start-Sleep for better Ctrl+C response
+        $startWait = Get-Date
+        while (((Get-Date) - $startWait).TotalSeconds -lt $RotationDelay) {
+            # Check for user interrupt every 100ms
+            if ([Console]::KeyAvailable) {
+                $key = [Console]::ReadKey($true)
+                if ($key.Modifiers -eq [ConsoleModifiers]::Control -and $key.Key -eq [ConsoleKey]::C) {
+                    throw [System.OperationCanceledException]::new("User requested shutdown")
+                }
+            }
+            Start-Sleep -Milliseconds 100
+        }
+    }
+} catch [System.OperationCanceledException] {
+    # User pressed Ctrl+C
+    Show-ShutdownMessage
+    exit 0
+} catch {
+    Write-Host "`nFatal Error: $_" -ForegroundColor Red -BackgroundColor Black
+    Write-Host "Service terminated unexpectedly at $(Get-Date -Format 'HH:mm:ss')" -ForegroundColor Red
+    Write-Host "Check system logs for details." -ForegroundColor Yellow
+    exit 1
+}
