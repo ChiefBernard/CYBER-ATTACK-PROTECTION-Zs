@@ -4,3 +4,7 @@ github: [ChiefBernard]  # Replace with your actual username
 custom:
   - 'https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005'  # Test mode link
   # - 'https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005'  # Live mode (uncomment when ready
+
+  ['https://paystack.shop/pay/0ktq37iad-']
+
+  [![VTB Bank](https://img.shields.io/badge/ВТБанк-+79962103590-1B6DB4?style=for-the-badge)](https://www.vtb.ru/)
