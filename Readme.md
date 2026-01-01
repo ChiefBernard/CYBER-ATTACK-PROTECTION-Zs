@@ -82,12 +82,19 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 If this tool helps protect your privacy and you'd like to support its development:
 
+### 🌐 Online Payments
+
 [![Stripe](https://img.shields.io/badge/Donate-Stripe-635bff)](https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-%23EA4AAA)](https://github.com/sponsors/ChiefBernard)
 
-**Card Payments:** [Paystack](https://paystack.shop/pay/0ktq37iad-)  
 
-**ВТБанк:** +79962103590 (message for details) 
+[![Paystack](https://img.shields.io/badge/Paystack-Donate-00A881?logo=paystack)](https://paystack.shop/pay/0ktq37iad-)
+*Instant card payment (international cards accepted)*
+
+### 🏦 Direct Bank Transfer
+**ВТБанк России**  
+**Телефон/Счет:** `+79962103590`  
+*For direct RUB transfers within Russia* 
 
 Your support helps cover:
 - Server costs for testing
