@@ -85,6 +85,10 @@ If this tool helps protect your privacy and you'd like to support its developmen
 [![Stripe](https://img.shields.io/badge/Donate-Stripe-635bff)](https://buy.stripe.com/dRm5kDch65VN2vJcrKgw005)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub-%23EA4AAA)](https://github.com/sponsors/ChiefBernard)
 
+**Card Payments:** [Paystack](https://paystack.shop/pay/0ktq37iad-)  
+
+**ВТБанк:** +79962103590 (message for details) 
+
 Your support helps cover:
 - Server costs for testing
 - Development time for new features
